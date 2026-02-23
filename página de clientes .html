@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Barber Connect Web</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> 
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        @font-face { font-family: 'Inter'; src: local('Inter'), local('sans-serif'); }
+        @font-face { font-family: 'Bebas Neue'; src: local('Bebas Neue'), local('Impact'), local('sans-serif-condensed'); }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; touch-action: manipulation; }
+        
+        :root { 
+            --primary: #00D4AA; --primary-dim: rgba(0, 212, 170, 0.15); --primary-glow: rgba(0, 212, 170, 0.4);
+            --accent: #FF6B35; --accent-dim: rgba(255, 107, 53, 0.15);
+            --bg: #0a0a0f; --bg-card: #12121a; --bg-elevated: #1a1a25;
+            --text: #ffffff; --text-secondary: #a0a0b0; --gray: #6a6a7a;
+            --border: rgba(255,255,255,0.06); --green: #00d68f; --red: #ff4757; --gold: #ffd700;
+            --gradient-hero: linear-gradient(135deg, #0a0a0f 0%, #1a1025 50%, #0a0a0f 100%);
+            --glass: rgba(18, 18, 26, 0.85);
+            --radius-md: 18px; --radius-lg: 28px; --radius-xl: 40px;
+        }
+        
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+        /* HEADER */
+        .hero-header { position: relative; padding: 10px 15px; background: var(--gradient-hero); border-bottom: 1px solid var(--border); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; box-shadow: 0 8px 25px var(--primary-glow); position: relative; }
+        .brand-text { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; display: flex; flex-direction: column; line-height: 0.9; flex-shrink: 1; }
+        
+        .brand-word { display: flex; gap: 1px; }
+
+        .brand-text span {
+            background: linear-gradient(90deg, #fff, var(--primary), #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: moveGradient 3s linear infinite, jump 2s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        /* Retraso para que las letras salten en cadena */
+        .brand-text span:nth-child(1) { animation-delay: 0.1s; }
+        .brand-text span:nth-child(2) { animation-delay: 0.2s; }
+        .brand-text span:nth-child(3) { animation-delay: 0.3s; }
+        .brand-text span:nth-child(4) { animation-delay: 0.4s; }
+        .brand-text span:nth-child(5) { animation-delay: 0.5s; }
+        .brand-text span:nth-child(6) { animation-delay: 0.6s; }
+        .brand-text span:nth-child(7) { animation-delay: 0.7s; }
+        /* Espacio */
+        .brand-text span:nth-child(8) { animation-delay: 0.8s; }
+        .brand-text span:nth-child(9) { animation-delay: 0.9s; }
+        .brand-text span:nth-child(10) { animation-delay: 1.0s; }
+        .brand-text span:nth-child(11) { animation-delay: 1.1s; }
+        .brand-text span:nth-child(12) { animation-delay: 1.2s; }
+        .brand-text span:nth-child(13) { animation-delay: 1.3s; }
+        .brand-text span:nth-child(14) { animation-delay: 1.4s; }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes jump {
+            0%, 20%, 100% { transform: translateY(0); }
+            10% { transform: translateY(-5px); text-shadow: 0 5px 15px var(--primary-glow); }
+        }
+        .header-actions { display: flex; gap: 10px; }
+        .header-btn { width: 44px; height: 44px; border-radius: 14px; background: var(--glass); border: 1px solid var(--border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; position: relative; }
+        .header-btn .badge { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: var(--red); border-radius: 50%; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; color: #fff; }
+
+        /* LOCATION & SEARCH */
+        .location-bar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--glass); border-radius: 12px; border: 1px solid var(--border); cursor: pointer; }
+        .location-value { font-size: 15px; font-weight: 700; color: #fff; }
+        .search-section { position: sticky; top: 0; z-index: 100; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(20px); padding: 10px 15px; border-bottom: 1px solid var(--border); }
+        .search-box { display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 40px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border); }
+        .search-box input { flex: 1; background: transparent; border: none; color: #fff; font-size: 15px; }
+
+        /* CARDS */
+        .section { padding: 20px; }
+        .barber-grid { display: flex; flex-direction: column; gap: 16px; }
+        .barber-card { background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; position: relative; transition: transform 0.2s; }
+        .barber-card:active { transform: scale(0.98); }
+        .barber-card.closed { opacity: 0.7; filter: grayscale(0.8); }
+        .card-header { display: flex; padding: 10px 12px; gap: 10px; }
+        .avatar { width: 50px; height: 50px; border-radius: 14px; object-fit: cover; border: 2px solid var(--border); }
+        .avatar-placeholder { width: 50px; height: 50px; border-radius: 14px; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--primary); }
+        .card-info { flex: 1; }
+        .barber-name { font-weight: 800; color: #fff; }
+        .card-footer { display: flex; gap: 8px; padding: 0 12px 12px; }
+        .btn-book { flex: 1; height: 38px; background: linear-gradient(135deg, var(--primary), #00a888); border-radius: 10px; border: none; color: #000; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        
+        /* MODALS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 2000; align-items: flex-end; justify-content: center; }
+        .modal.open { display: flex; }
+        .modal-content { width: 100%; max-width: 500px; background: var(--bg-card); border-radius: var(--radius-xl) var(--radius-xl) 0 0; border-top: 1px solid var(--primary); padding-bottom: 20px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+        .modal-title { font-family: 'Bebas Neue'; font-size: 24px; color: #fff; }
+        .modal-close { background: none; border: none; color: var(--gray); font-size: 20px; cursor: pointer; }
+        .modal-body { padding: 24px; }
+
+        /* FORMS */
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 12px; color: var(--text-secondary); font-weight: 700; margin-bottom: 10px; }
+        .form-input { width: 100%; height: 54px; padding: 0 18px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); color: #fff; font-size: 16px; }
+        .btn-primary { width: 100%; height: 58px; background: var(--primary); border: none; border-radius: var(--radius-md); color: #000; font-weight: 800; cursor: pointer; margin-top: 10px; }
+        
+        /* UTILS */
+        .distance-tag { padding: 4px 8px; background: rgba(255, 107, 53, 0.15); color: var(--accent); border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
+        .has-story { padding: 3px; background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); border-radius: 18px; }
+        
+        /* MAPA ESTILO HOJA */
+        #mapContainer { width: 100%; height: 300px; border-radius: 18px; border: 1px solid var(--border); margin-bottom: 15px; }
+        #modalMap .modal-content { max-height: 90vh; height: auto; border-radius: 40px 40px 0 0; padding: 0; display: flex; flex-direction: column; }
+        #modalMap .modal-body { overflow-y: auto; padding: 20px; }
+        
+        /* SOLICITUDES */
+        .slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+        .time-slot { background: var(--bg-elevated); padding: 10px; border-radius: 8px; text-align: center; color: #fff; font-size: 12px; cursor: pointer; border: 1px solid var(--border); }
+        .time-slot.selected { background: var(--primary); color: #000; border-color: var(--primary); }
+        .time-slot.taken { opacity: 0.3; pointer-events: none; background: rgba(255,71,87,0.1); }
+        
+        #storyViewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; user-select: none; -webkit-user-select: none; }
+        #storyViewer.active { display: flex; animation: fadeIn 0.3s; }
+        
+        /* FIX: Bloqueo de menú nativo y selección al tocar */
+        #storyImg { 
+            max-width: 100%; max-height: 80%; object-fit: contain; 
+            -webkit-touch-callout: none; /* iOS: Quita la lupa/menú */
+            -webkit-user-select: none;   /* Chrome/Android: Quita selección */
+            user-select: none;
+            pointer-events: auto;
+        }
+        
+        .story-bar { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; gap: 5px; }
+        .progress { height: 3px; background: rgba(255,255,255,0.3); flex: 1; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #fff; width: 0%; }
+        
+        /* Interacciones de Historia */
+        .story-actions { position: absolute; right: 20px; bottom: 100px; display: flex; flex-direction: column; gap: 25px; align-items: center; z-index: 20; }
+        .action-btn { background: none; border: none; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .action-btn i { font-size: 28px; }
+        .action-btn span { font-size: 12px; font-weight: bold; }
+        .action-btn.liked i { color: #ff4757; animation: heartBeat 0.3s; }
+        
+        @keyframes heartBeat { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .barber-reveal { opacity: 0; transform: translateY(20px); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .barber-reveal.visible { opacity: 1; transform: translateY(0); }
+
+        .skeleton { background: #1a1a25; overflow: hidden; position: relative; }
+        .skeleton::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent); animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .swal2-container { z-index: 99999 !important; }
+        .edit-section { background: var(--bg-elevated); border-radius: 14px; padding: 15px; margin-top: 15px; text-align: left; border: 1px solid var(--border); }
+        .edit-title { font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .pass-wrapper { position: relative; display: flex; align-items: center; }
+        .pass-eye { position: absolute; right: 15px; color: var(--gray); cursor: pointer; padding: 10px; }
+        .strength-meter { height: 4px; border-radius: 2px; margin-top: 5px; background: #333; overflow: hidden; }
+        .strength-bar { height: 100%; width: 0%; transition: 0.3s; }
+        .strength-text { font-size: 10px; margin-top: 4px; font-weight: bold; }
+        
+        /* Sistema de Reseñas */
+        .btn-reviews { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--gray); border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-top: 5px; width: fit-content; }
+        .review-item { background: var(--bg-elevated); border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 3px solid var(--primary); }
+        .stars-input { display: flex; gap: 10px; justify-content: center; margin: 15px 0; font-size: 24px; }
+        .star-box { color: #333; cursor: pointer; transition: transform 0.2s; }
+        .star-box.active { color: var(--gold); transform: scale(1.2); }
+    </style>
+</head>
+<body>
+
+    <header class="hero-header">
+        <div class="header-top">
+            <div class="brand" style="flex: 1; overflow: hidden;">
+                <div class="brand-icon" style="flex-shrink: 0;">
+                    <i class="fas fa-cut"></i>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-word">
+                        <span>B</span><span>A</span><span>R</span><span>B</span><span>E</span><span>R</span>
+                    </div>
+                    <div class="brand-word">
+                        <span>C</span><span>O</span><span>N</span><span>N</span><span>E</span><span>C</span><span>T</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions" style="flex-shrink: 0; margin-left: 10px;">
+                <button class="header-btn" onclick="window.open('https://barber-ecosistema.github.io/barber-web/', '_blank')" style="border-color: var(--gold); color: var(--gold);">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="header-btn" onclick="verNotificaciones()">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notifBadge" style="display:none;">0</span>
+                </button>
+                <button class="header-btn" onclick="verMisTurnos()">
+                    <i class="fas fa-receipt"></i>
+                </button>
+                <button class="header-btn" onclick="abrirPerfilUsuario()">
+                    <i class="fas fa-user" id="userIconBtn"></i>
+                </button>
+            </div>
+        </div>
+       
+    </header>
+
+    <div class="search-section">
+        <div class="search-box">
+            <i class="fas fa-search" style="color:var(--gray)"></i>
+            <input type="text" id="searchInput" placeholder="Buscar barbero..." oninput="filtrarBarberos()">
+        </div>
+    </div>
+
+    <div class="section">
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button id="btnTodos" onclick="filtrarPor('todos')" class="btn-primary" style="height:40px; margin:0; flex:1; background:var(--primary); color:#000; border:1px solid var(--border); font-size: 11px;">TODOS (<span id="countTodos">0</span>)</button>
+            <button id="btnCerca" onclick="filtrarPor('cerca')" class="btn-primary" style="height:40px; margin:0; flex:1; background:var(--bg-elevated); color:#fff; border:1px solid var(--border); font-size: 11px;">CERCA (<span id="countCerca">0</span>)</button>
+            <button id="btnMapa" onclick="abrirMapa()" class="btn-primary" style="height:40px; margin:0; flex:1; background:var(--bg-elevated); color:#fff; border:1px solid var(--border); font-size: 11px;">MAPA</button>
+        </div>
+        <div class="barber-grid" id="barberList"></div>
+        <div id="scrollSentinel" style="height: 20px; margin-top: 20px;"></div>
+    </div>
+
+    <div id="modalNotif" class="modal" onclick="if(event.target === this) cerrarModal('modalNotif')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">NOTIFICACIONES</div>
+                <button class="modal-close" onclick="cerrarModal('modalNotif')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="notifList">
+                <div style="text-align:center; color:var(--gray); padding:20px;">No tienes avisos nuevos.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalAuth" class="modal" onclick="if(event.target === this) cerrarModal('modalAuth')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">ACCESO CLIENTES</div>
+                <button class="modal-close" onclick="cerrarModal('modalAuth')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; margin-bottom: 20px; background: var(--bg-elevated); padding: 5px; border-radius: 12px;">
+                    <button id="tabLogin" onclick="switchAuthTab('login')" style="flex: 1; padding: 12px; background: var(--primary); color: #000; border: none; border-radius: 8px; font-weight: bold;">ENTRAR</button>
+                    <button id="tabRegister" onclick="switchAuthTab('register')" style="flex: 1; padding: 12px; background: transparent; color: #fff; border: none; border-radius: 8px; font-weight: bold;">CREAR</button>
+                </div>
+
+                <div id="formLogin">
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" class="form-input" id="loginPhone" placeholder="Tu número">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" class="form-input" id="loginPass" placeholder="Tu clave secreta">
+                    </div>
+                    <button class="btn-primary" onclick="iniciarSesion()">ENTRAR</button>
+                </div>
+
+                <div id="formRegister" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-input" id="regName" placeholder="Ej: Juan Perez">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono (Será tu ID)</label>
+                        <input type="tel" class="form-input" id="regPhone" placeholder="Tu número">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Crear Contraseña (Min 8, Mayús, Símbolo)</label>
+                        <input type="password" class="form-input" id="regPass" placeholder="Contraseña segura">
+                    </div>
+                    <button class="btn-primary" onclick="registrarUsuario()">CREAR CUENTA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalBooking" class="modal" onclick="if(event.target === this) cerrarModal('modalBooking')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">RESERVAR</div>
+                <button class="modal-close" onclick="cerrarModal('modalBooking')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <h3 id="targetBarberName" style="color:#fff; margin-bottom:20px; text-align:center;">...</h3>
+                <div class="form-group">
+                    <label class="form-label">Servicio</label>
+                    <select id="clientService" class="form-input" style="background:var(--bg); color:#fff;"><option>Cargando...</option></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fecha</label>
+                    <input type="date" id="clientDate" class="form-input" style="color-scheme:dark;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Hora Disponibles</label>
+                    <div id="slotsContainer" class="slots-grid"></div>
+                    <input type="hidden" id="clientTime">
+                </div>
+                <button class="btn-primary" onclick="enviarSolicitud()"><i class="fas fa-paper-plane"></i> CONFIRMAR RESERVA</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalMap" class="modal" onclick="if(event.target === this) cerrarModal('modalMap')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">MAPA</div>
+                <button class="modal-close" onclick="cerrarModal('modalMap')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="mapContainer"></div>
+                <div style="font-size:12px; color:var(--gray); margin-bottom:10px; font-weight:bold; text-transform:uppercase;">Cerca de ti</div>
+                <div id="mapBarberList" style="display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalHistory" class="modal" onclick="if(event.target === this) cerrarModal('modalHistory')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">MIS TURNOS</div>
+                <button class="modal-close" onclick="cerrarModal('modalHistory')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="historyList"></div>
+        </div>
+    </div>
+
+    <div id="modalCatalog" class="modal" onclick="if(event.target === this) cerrarModal('modalCatalog')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">TRABAJOS</div>
+                <button class="modal-close" onclick="cerrarModal('modalCatalog')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="catalogGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:15px;">
+                </div>
+        </div>
+    </div>
+
+    <div id="modalUserProfile" class="modal" onclick="if(event.target === this) cerrarModal('modalUserProfile')">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">MI CUENTA</div><button class="modal-close" onclick="cerrarModal('modalUserProfile')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body" style="text-align:center;">
+                <div style="font-size:50px; color:var(--primary); margin-bottom:10px;"><i class="fas fa-user-circle"></i></div>
+                <h2 id="profileNameDisplay" style="color:#fff;">Usuario</h2>
+                <p id="profilePhoneDisplay" style="color:var(--gray); margin-bottom:20px;">...</p>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                    <button class="btn-primary" onclick="abrirModal('modalEditName')" style="height:45px; margin:0; font-size:12px; background:var(--bg-elevated); color:#fff; border:1px solid var(--border);"><i class="fas fa-edit"></i> NOMBRE</button>
+                    <button class="btn-primary" onclick="abrirModal('modalEditPhone')" style="height:45px; margin:0; font-size:12px; background:var(--bg-elevated); color:#fff; border:1px solid var(--border);"><i class="fas fa-phone"></i> TELÉFONO</button>
+                    <button class="btn-primary" onclick="abrirModal('modalEditPass')" style="height:45px; margin:0; font-size:12px; background:var(--bg-elevated); color:#fff; border:1px solid var(--border); grid-column: span 2;"><i class="fas fa-lock"></i> SEGURIDAD Y CLAVE</button>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-primary" onclick="toggleFullScreen()" style="background:var(--bg-elevated); border:1px solid var(--gold); color:#fff; height: 45px; margin:0; flex:1;"><i class="fas fa-expand"></i> SCREEN</button>
+                    <button class="btn-primary" onclick="contactarSoporte()" style="background:var(--bg-elevated); border:1px solid var(--primary); color:#fff; height: 45px; margin:0; flex:1;">SOPORTE</button>
+                </div>
+                <button class="btn-primary" onclick="cerrarSesion()" style="background:transparent; border:1px solid var(--red); color:var(--red); margin-top:15px;">CERRAR SESIÓN</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalReviews" class="modal" onclick="if(event.target === this) cerrarModal('modalReviews')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">RESEÑAS Y OPINIONES</div>
+                <button class="modal-close" onclick="cerrarModal('modalReviews')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="reviewsList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
+                
+                <div id="writeReviewSection" style="border-top: 1px solid var(--border); padding-top: 15px;">
+                    <div style="color: var(--primary); font-size: 12px; font-weight: 800; text-align: center;">TU OPINIÓN IMPORTA</div>
+                    <div class="stars-input" id="starsSelector">
+                        <i class="fas fa-star star-box" onclick="setRating(1)"></i>
+                        <i class="fas fa-star star-box" onclick="setRating(2)"></i>
+                        <i class="fas fa-star star-box" onclick="setRating(3)"></i>
+                        <i class="fas fa-star star-box" onclick="setRating(4)"></i>
+                        <i class="fas fa-star star-box" onclick="setRating(5)"></i>
+                    </div>
+                    <textarea id="reviewText" class="form-input" placeholder="Cuéntanos tu experiencia..." style="height: 80px; padding: 12px; resize: none;"></textarea>
+                    <button class="btn-primary" onclick="enviarResena()">PUBLICAR RESEÑA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEditName" class="modal" onclick="if(event.target === this) cerrarModal('modalEditName')">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">CAMBIAR NOMBRE</div><button class="modal-close" onclick="cerrarModal('modalEditName')">&times;</button></div>
+            <div class="modal-body">
+                <input type="text" id="editName" class="form-input" placeholder="Nuevo nombre completo">
+                <button class="btn-primary" onclick="actualizarNombre()">GUARDAR CAMBIOS</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEditPhone" class="modal" onclick="if(event.target === this) cerrarModal('modalEditPhone')">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">CAMBIAR TELÉFONO</div><button class="modal-close" onclick="cerrarModal('modalEditPhone')">&times;</button></div>
+            <div class="modal-body">
+                <input type="tel" id="editPhone" class="form-input" placeholder="Nuevo número">
+                <input type="password" id="phoneConfirmPass" class="form-input" placeholder="Tu contraseña actual" style="margin-top:10px;">
+                <button class="btn-primary" onclick="actualizarTelefono()">ACTUALIZAR NÚMERO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEditPass" class="modal" onclick="if(event.target === this) cerrarModal('modalEditPass')">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">SEGURIDAD</div><button class="modal-close" onclick="cerrarModal('modalEditPass')">&times;</button></div>
+            <div class="modal-body">
+                <label class="form-label">Contraseña Actual</label>
+                <input type="password" id="passCurrent" class="form-input" placeholder="Escribe tu clave actual">
+                
+                <label class="form-label" style="margin-top:15px;">Nueva Contraseña</label>
+                <div class="pass-wrapper">
+                    <input type="password" id="passNew" class="form-input" placeholder="Nueva clave" oninput="chequearFuerzaPass(this.value)">
+                    <i class="fas fa-eye pass-eye" onclick="togglePass('passNew', this)"></i>
+                </div>
+                <div class="strength-meter"><div id="strengthBar" class="strength-bar"></div></div>
+                <div id="strengthText" class="strength-text">Escribe una clave segura</div>
+
+                <label class="form-label" style="margin-top:15px;">Confirmar Nueva</label>
+                <div class="pass-wrapper">
+                    <input type="password" id="passConfirm" class="form-input" placeholder="Repite la clave">
+                    <i class="fas fa-eye pass-eye" onclick="togglePass('passConfirm', this)"></i>
+                </div>
+                <button class="btn-primary" onclick="actualizarPassword()">CAMBIAR CONTRASEÑA</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="storyViewer" onclick="cerrarHistoria()">
+        <div class="story-bar"><div class="progress"><div id="storyProgress" class="progress-fill"></div></div></div>
+        <div style="position:absolute; top:20px; left:20px; color:#fff; font-weight:bold; z-index:10;" id="storyUser">Usuario</div>
+        
+        <div class="story-actions" id="storyActions" style="display:none;">
+            <button class="action-btn" id="btnLikeStory" onclick="event.stopPropagation(); darLikeHistoria()">
+                <i class="fas fa-heart"></i>
+                <span id="likeCount">0</span>
+            </button>
+            <button class="action-btn" onclick="event.stopPropagation(); comentarHistoria()">
+                <i class="fas fa-comment"></i>
+                <span>Responder</span>
+            </button>
+        </div>
+
+        <img id="storyImg" src="">
+        <div style="position:absolute; bottom:30px; color:#aaa; font-size:12px;">Desliza para cerrar</div>
+    </div>
+
+    <script>
+        const SB_URL = "https://bhdmxljthtfomiwgenvf.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJoZG14bGp0aHRmb21pd2dlbnZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3ODQ0MzYsImV4cCI6MjA4MTM2MDQzNn0.sgVh45Pb_6C500BtBfkivVRZM2cNLMBgvaPw5thGZHs";
+        const CAT_URL = "https://cfjxlxkurlpyambucmeo.supabase.co";
+        const CAT_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmanhseGt1cmxweWFtYnVjbWVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMzE0MzMsImV4cCI6MjA4MjcwNzQzM30.kKNSHwIy5KVa5-8scqac17gdZIgN_WH2ITYc74njO8w";
+
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
+        const _cat = supabase.createClient(CAT_URL, CAT_KEY);
+
+        let currentUser = null;
+        let deviceID = null;
+        let barberosCache = [];
+        let barberosFiltrados = [];
+        let miUbicacion = { lat: null, lng: null };
+        let mapaInstance = null;
+        let markersLayer = null;
+        let visibleCount = 10;
+        let isLoadingScroll = false;
+        let modalStack = [];
+
+        window.onload = () => {
+            inicializarIdentidad();
+            detectarUbicacion();
+            cargarBarberos();
+            initInfiniteScroll();
+
+            window.addEventListener('popstate', () => {
+                if (modalStack.length > 0) {
+                    const id = modalStack.pop();
+                    if (id === 'storyViewer') {
+                        document.getElementById('storyViewer').classList.remove('active');
+                        if (storyTimer) clearInterval(storyTimer);
+                    } else {
+                        const m = document.getElementById(id);
+                        if (m) m.classList.remove('open');
+                        if (id === 'modalMap') filtrarPor('todos');
+                    }
+                } else {
+                    Swal.fire({
+                        title: '¿SALIR DE LA APP?',
+                        text: "Confirmas que deseas abandonar la página",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: 'var(--primary)',
+                        cancelButtonColor: 'var(--red)',
+                        confirmButtonText: 'SÍ, SALIR',
+                        cancelButtonText: 'QUEDARME',
+                        background: '#12121a', color: '#fff'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.history.back();
+                            window.history.back();
+                        } else {
+                            history.pushState(null, null, null);
+                        }
+                    });
+                }
+            });
+            history.pushState(null, null, null);
+            _sb.channel('public:turnos').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'turnos' }, payload => {
+                const misTurnos = JSON.parse(localStorage.getItem('mis_turnos') || '[]');
+                if(misTurnos.includes(payload.new.id)) {
+                    const badge = document.getElementById('notifBadge');
+                    badge.innerText = (parseInt(badge.innerText) || 0) + 1;
+                    badge.style.display = 'flex';
+                    Swal.fire({ toast: true, position: 'top', icon: payload.new.estado === 'aceptado' ? 'success' : 'error', title: `Turno ${payload.new.estado.toUpperCase()}`, timer: 6000, background: '#1a1a25', color: '#fff' });
+                }
+            }).subscribe();
+            _sb.channel('public:barberos').on('postgres_changes', { event: '*', schema: 'public', table: 'barberos' }, () => {
+                cargarBarberos(); 
+            }).subscribe();
+            _sb.channel('public:datos_cliente').on('postgres_changes', { event: '*', schema: 'public', table: 'clientes_registrados' }, payload => {
+                if (currentUser) {
+                    const nuevosDatos = payload.new;
+                    const viejosDatos = payload.old;
+                    
+                    if ((nuevosDatos && nuevosDatos.id === currentUser.id) || (viejosDatos && viejosDatos.id === currentUser.id)) {
+                        
+                        // A) Baneo o Eliminación
+                        if (payload.eventType === 'DELETE' || (nuevosDatos && nuevosDatos.node_restricted === true)) {
+                            localStorage.removeItem('user_session');
+                            currentUser = null;
+                            updateUserUI();
+                            Swal.fire({ icon: 'error', title: 'ACCESO REVOCADO', text: 'Tu cuenta ha sido restringida.', confirmButtonText: 'OK', background: '#12121a', color: '#fff', allowOutsideClick: false })
+                            .then(() => { location.reload(); });
+                            return;
+                        }
+
+                        // B) Actualización en tiempo real (Nombre, Tel, Clave)
+                        if (payload.eventType === 'UPDATE') {
+                            // Actualizamos el objeto local con lo que viene del servidor
+                            currentUser = { ...currentUser, ...nuevosDatos };
+                            localStorage.setItem('user_session', JSON.stringify(currentUser));
+                            
+                            // Refrescar UI (Nombre en cabecera, perfil, etc)
+                            updateUserUI();
+                            
+                            Swal.fire({ 
+                                toast: true, position: 'top', icon: 'info', 
+                                title: 'Datos de cuenta actualizados', 
+                                timer: 3000, background: '#1a1a25', color: '#fff' 
+                            });
+                        }
+                    }
+                }
+            }).subscribe();
+        };
+
+        // --- AUTH LÓGICA (Paridad Java) ---
+        const normalizePhone = (raw) => raw.replace(/[^0-9]/g, "");
+        
+        const isPasswordSecure = (pass) => {
+            if (pass.length < 8) return false;
+            let hasUpper = /[A-Z]/.test(pass);
+            let hasSymbol = /[!@#$%^&*()_+\-=\[\]{}|;':",./<>?]/.test(pass);
+            return hasUpper && hasSymbol;
+        };
+
+        async function inicializarIdentidad() {
+            let storageId = localStorage.getItem('device_unique_id');
+            if (!storageId) {
+                storageId = "web_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('device_unique_id', storageId);
+            }
+            deviceID = storageId;
+            
+            const savedUser = localStorage.getItem('user_session');
+            if(savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUserUI();
+            }
+        }
+
+        async function iniciarSesion() {
+            const telRaw = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const phone = normalizePhone(telRaw);
+
+            // Ajuste para que el cartel salga SIEMPRE delante de todo
+            const configAlerta = { background: '#12121a', color: '#fff', confirmButtonColor: 'var(--primary)', target: 'body' };
+
+            if(!phone || !pass) return Swal.fire({ ...configAlerta, toast:true, title:'Faltan datos', icon:'warning', position:'top' });
+
+            const btn = document.querySelector('#formLogin .btn-primary');
+            btn.innerText = "VERIFICANDO..."; btn.disabled = true;
+
+            try {
+                // 1. Verificamos si el teléfono existe
+                const { data: user, error } = await _sb.from('clientes_registrados').select('*').eq('telefono', phone).maybeSingle();
+
+                if (!user) {
+                    Swal.fire({ ...configAlerta, icon: 'error', title: 'No registrado', text: 'Este número de teléfono no tiene una cuenta activa.' });
+                } else if (user.clave !== pass) {
+                    Swal.fire({ ...configAlerta, icon: 'error', title: 'Clave incorrecta', text: 'La contraseña introducida no es válida.' });
+                } else if (user.node_restricted) {
+                    Swal.fire({ ...configAlerta, icon: 'error', title: 'CUENTA BANEADA', text: 'Tu acceso ha sido restringido por el administrador (🚫).', color: '#FF4757' });
+                } else {
+                    // LOGIN EXITOSO
+                    await _sb.from('clientes_registrados').update({
+                        id_dispositivo: deviceID, modelo_dispositivo: "Web Browser", ultima_conexion: new Date().toISOString()
+                    }).eq('id', user.id);
+
+                    currentUser = user;
+                    localStorage.setItem('user_session', JSON.stringify(currentUser));
+                    restaurarHistorial(user.telefono);
+                    updateUserUI();
+                    cerrarModal('modalAuth');
+                    Swal.fire({ ...configAlerta, toast:true, icon:'success', title: '¡Hola, ' + user.nombre + '!', position:'top', timer:2000 });
+                }
+            } catch(e) { console.error(e); }
+            btn.disabled = false; btn.innerText = 'ENTRAR';
+        }
+
+        async function registrarUsuario() {
+            const nombre = document.getElementById('regName').value.trim();
+            const telRaw = document.getElementById('regPhone').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+            const phone = normalizePhone(telRaw);
+
+            if(!nombre || !phone || !pass) return Swal.fire({toast:true, title:'Completa todo', icon:'warning', background:'#222', color:'#fff'});
+            
+            if (!isPasswordSecure(pass)) {
+                return Swal.fire({ icon: 'warning', title: 'Contraseña Insegura', text: 'Usa mín. 8 caracteres, 1 mayúscula y 1 símbolo.', background: '#222', color: '#fff' });
+            }
+
+            const btn = document.querySelector('#formRegister .btn-primary');
+            btn.innerText = "CREANDO..."; btn.disabled = true;
+
+            try {
+                // 1. Chequeo de ID Dispositivo (Baneo)
+                const { data: restricted } = await _sb.from('clientes_registrados').select('id').eq('id_dispositivo', deviceID).eq('node_restricted', true).maybeSingle();
+                if (restricted) {
+                    Swal.fire({ icon: 'error', title: 'DISPOSITIVO BLOQUEADO', text: 'No puedes crear cuentas desde aquí.', background: '#121212', color: '#FF4757' });
+                    btn.disabled = false; btn.innerText = 'CREAR CUENTA'; return;
+                }
+
+                // 2. Chequeo de Teléfono Duplicado
+                const { data: existing } = await _sb.from('clientes_registrados').select('id').eq('telefono', phone).maybeSingle();
+                if(existing) {
+                    Swal.fire({ icon: 'error', title: 'Ya registrado', text: 'Este teléfono ya tiene cuenta.', background: '#222', color: '#fff' });
+                    btn.disabled = false; btn.innerText = 'CREAR CUENTA'; return;
+                }
+
+                const newUser = {
+                    id: crypto.randomUUID(),
+                    id_dispositivo: deviceID,
+                    nombre: nombre,
+                    telefono: phone,
+                    clave: pass,
+                    modelo_dispositivo: "Web Browser",
+                    ultima_conexion: new Date().toISOString(),
+                    node_restricted: false
+                };
+
+                const { error } = await _sb.from('clientes_registrados').insert([newUser]);
+                
+                if(!error) {
+                    currentUser = newUser;
+                    localStorage.setItem('user_session', JSON.stringify(currentUser));
+                    updateUserUI();
+                    cerrarModal('modalAuth');
+                    Swal.fire({ toast:true, icon:'success', title: '¡Cuenta Creada!', background:'#222', color:'#fff' });
+                } else {
+                    Swal.fire({ icon:'error', title:'Error', text: error.message, background:'#222', color:'#fff' });
+                }
+            } catch(e) { console.error(e); }
+            btn.disabled = false; btn.innerText = 'CREAR CUENTA';
+        }
+
+
+        async function restaurarHistorial(tel) {
+            const { data } = await _sb.from('turnos').select('id').eq('telefono', tel);
+            if(data) {
+                const ids = data.map(t => t.id);
+                localStorage.setItem('mis_turnos', JSON.stringify(ids));
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('user_session');
+            currentUser = null;
+            updateUserUI();
+            cerrarModal('modalUserProfile');
+            location.reload();
+        }
+
+        // --- GESTIÓN DE PERFIL ---
+        function togglePass(id, el) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                el.classList.replace('fa-eye', 'fa-eye');
+                el.style.color = 'var(--primary)';
+            } else {
+                input.type = 'password';
+                el.classList.replace('fa-eye', 'fa-eye');
+                el.style.color = 'var(--gray)';
+            }
+        }
+
+        function chequearFuerzaPass(p) {
+            const bar = document.getElementById('strengthBar');
+            const txt = document.getElementById('strengthText');
+            let s = 0;
+            if (p.length >= 8) s++;
+            if (/[A-Z]/.test(p)) s++;
+            if (/[0-9]/.test(p)) s++;
+            if (/[^A-Za-z0-9]/.test(p)) s++;
+
+            const colors = ['#ff4757', '#ffa502', '#2ed573', '#00d4aa'];
+            const labels = ['Muy Débil', 'Débil', 'Media', 'Fuerte'];
+            bar.style.width = (s * 25) + '%';
+            bar.style.background = colors[s - 1] || '#333';
+            txt.innerText = labels[s - 1] || 'Escribe una clave segura';
+            txt.style.color = colors[s - 1] || '#6a6a7a';
+        }
+
+        async function actualizarNombre() {
+            const n = document.getElementById('editName').value.trim();
+            if (!n) return;
+            
+            const { error } = await _sb.from('clientes_registrados').update({ nombre: n }).eq('id', currentUser.id);
+            if (!error) {
+                cerrarModal('modalEditName');
+                Swal.fire({ icon: 'success', title: '¡Listo!', text: 'Nombre actualizado.', background: '#12121a', color: '#fff', timer: 2000 });
+            }
+        }
+
+        async function actualizarTelefono() {
+            const t = normalizePhone(document.getElementById('editPhone').value);
+            const p = document.getElementById('phoneConfirmPass').value;
+            if (t.length < 8 || p !== currentUser.clave) {
+                return Swal.fire({ icon: 'error', title: 'Error', text: 'Datos incorrectos.', background: '#12121a', color: '#fff' });
+            }
+
+            const { error } = await _sb.from('clientes_registrados').update({ telefono: t }).eq('id', currentUser.id);
+            if (!error) {
+                cerrarModal('modalEditPhone');
+                Swal.fire({ icon: 'success', title: '¡Listo!', text: 'Teléfono actualizado.', background: '#12121a', color: '#fff', timer: 2000 });
+            }
+        }
+
+        async function actualizarPassword() {
+            const curr = document.getElementById('passCurrent').value;
+            const newP = document.getElementById('passNew').value;
+            const conf = document.getElementById('passConfirm').value;
+
+            if (curr !== currentUser.clave) return Swal.fire({ icon: 'error', title: 'Clave actual incorrecta' });
+            if (newP !== conf) return Swal.fire({ icon: 'warning', title: 'Las claves no coinciden' });
+            if (!isPasswordSecure(newP)) return Swal.fire({ icon: 'warning', title: 'Clave muy débil' });
+
+            const { error } = await _sb.from('clientes_registrados').update({ clave: newP }).eq('id', currentUser.id);
+            if (!error) {
+                cerrarModal('modalEditPass');
+                Swal.fire({ icon: 'success', title: '¡Listo!', text: 'Contraseña cambiada.', background: '#12121a', color: '#fff', timer: 2000 });
+                // Limpiar campos
+                ['passCurrent', 'passNew', 'passConfirm'].forEach(id => document.getElementById(id).value = '');
+            }
+        }
+
+        let currentReviewRating = 0;
+        let activeReviewBarberId = null;
+
+        async function abrirResenas(id, nombre) {
+            activeReviewBarberId = id;
+            currentReviewRating = 0;
+            const modal = document.getElementById('modalReviews');
+            modal.querySelector('.modal-title').innerText = "RESEÑAS: " + nombre;
+            document.getElementById('reviewText').value = '';
+            document.querySelectorAll('.star-box').forEach(s => s.classList.remove('active'));
+            abrirModal('modalReviews');
+            cargarResenas(id);
+        }
+
+        async function cargarResenas(id) {
+            const list = document.getElementById('reviewsList');
+            list.innerHTML = '<div style="color:var(--primary); text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Cargando opiniones...</div>';
+            
+            try {
+                const { data, error } = await _sb.from('resenas').select('*').eq('barbero_id', id).order('fecha', {ascending:false});
+                if(error) throw error;
+
+                if(!data || data.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; color:var(--gray); padding:30px;"><i class="fas fa-comment-slash" style="font-size:30px; margin-bottom:10px;"></i><br>Sé el primero en opinar sobre este barbero.</div>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                data.forEach(r => {
+                    let s = '';
+                    for(let i=0; i<5; i++) s += `<i class="fas fa-star" style="color:${i < r.calificacion ? 'var(--gold)' : '#222'}; font-size:10px;"></i>`;
+                    const f = new Date(r.fecha);
+                    const fechaTxt = `${f.getDate()}/${f.getMonth()+1} ${f.getHours()}:${f.getMinutes().toString().padStart(2,'0')}`;
+
+                    list.innerHTML += `
+                    <div class="review-item" style="animation: fadeIn 0.3s;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="color:var(--primary); font-weight:800; font-size:13px; text-transform:uppercase;">${r.cliente_nombre}</span>
+                            <span style="color:var(--gray); font-size:9px;">${fechaTxt}</span>
+                        </div>
+                        <div style="margin-bottom:8px; background:rgba(0,0,0,0.2); width:fit-content; padding:2px 8px; border-radius:20px;">${s}</div>
+                        <div style="color:#eee; font-size:13px; line-height:1.5; font-style:italic;">"${r.comentario}"</div>
+                    </div>`;
+                });
+            } catch(e) { list.innerHTML = '<div style="color:var(--red); text-align:center;">Error al cargar datos.</div>'; }
+        }
+
+        function setRating(n) {
+            currentReviewRating = n;
+            const stars = document.querySelectorAll('.star-box');
+            stars.forEach((s, i) => s.classList.toggle('active', i < n));
+        }
+
+        async function enviarResena() {
+            if(!currentUser) return abrirPerfilUsuario();
+            if(!activeReviewBarberId) return;
+
+            if(currentReviewRating === 0) return Swal.fire({ icon:'warning', title:'Puntaje faltante', text:'Selecciona las estrellas antes de publicar.', background:'#12121a', color:'#fff' });
+            
+            const texto = document.getElementById('reviewText').value.trim();
+            if(!texto) return Swal.fire({ icon:'warning', title:'Comentario vacío', text:'Escribe qué te pareció el servicio.', background:'#12121a', color:'#fff' });
+
+            const btn = document.querySelector('#writeReviewSection .btn-primary');
+            btn.innerText = "PUBLICANDO..."; btn.disabled = true;
+
+            try {
+                // Buscamos si este dispositivo ya opinó sobre este barbero
+                const { data: existing } = await _sb.from('resenas')
+                    .select('id')
+                    .eq('barbero_id', activeReviewBarberId)
+                    .eq('device_id', deviceID)
+                    .maybeSingle();
+
+                const resenaData = {
+                    barbero_id: activeReviewBarberId,
+                    device_id: deviceID,
+                    cliente_nombre: currentUser.nombre,
+                    calificacion: currentReviewRating,
+                    comentario: texto,
+                    fecha: new Date().toISOString()
+                };
+
+                const { error } = existing 
+                    ? await _sb.from('resenas').update(resenaData).eq('id', existing.id)
+                    : await _sb.from('resenas').insert([resenaData]);
+
+                if(error) throw error;
+
+                Swal.fire({ icon:'success', title:'Publicado', text:'Tu opinión ha sido guardada correctamente.', background:'#12121a', color:'#fff', timer:2000, showConfirmButton:false });
+                document.getElementById('reviewText').value = '';
+                cargarResenas(activeReviewBarberId);
+                cargarBarberos();
+            } catch(e) {
+                Swal.fire({ icon:'error', title:'Error de Tabla', text: 'Verifica las columnas en Supabase: ' + e.message, background:'#12121a', color:'#fff' });
+            } finally {
+                btn.innerText = "PUBLICAR RESEÑA"; btn.disabled = false;
+            }
+        }
+
+        async function verNotificaciones() {
+            if(!currentUser) return Swal.fire({title:'Acceso Restringido', text:'Inicia sesión para ver tus notificaciones.', icon:'warning', background:'#1a1a25', color:'#fff'});
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+            abrirModal('modalNotif');
+            badge.style.display = 'none';
+            badge.innerText = '0';
+            list.innerHTML = '<div style="color:var(--primary); text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+
+            try {
+                const { data, error } = await _sb.from('turnos')
+                    .select('*')
+                    .eq('telefono', currentUser.telefono)
+                    .neq('estado', 'pendiente')
+                    .order('id', { ascending: false })
+                    .limit(10);
+
+                if(!data || data.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; color:var(--gray); padding:30px;"><i class="fas fa-bell-slash" style="font-size:30px; margin-bottom:10px;"></i><br>No tienes avisos nuevos.</div>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                data.forEach(n => {
+                    const esOk = n.estado === 'aceptado';
+                    const icon = esOk ? 'fa-check-circle' : 'fa-times-circle';
+                    const color = esOk ? 'var(--primary)' : 'var(--red)';
+                    
+                    list.innerHTML += `
+                    <div style="background:var(--bg-elevated); padding:15px; border-radius:15px; margin-bottom:12px; border-left:5px solid ${color}; display:flex; gap:15px; align-items:center; animation: fadeIn 0.3s;">
+                        <div style="width:40px; height:40px; border-radius:10px; background:${color}22; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas ${icon}" style="color:${color}; font-size:18px;"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="color:#fff; font-weight:800; font-size:14px; text-transform:uppercase;">Turno ${n.estado}</div>
+                            <div style="color:var(--text-secondary); font-size:12px;">${n.servicio}</div>
+                            <div style="color:var(--gray); font-size:10px; margin-top:4px;">${n.fecha} • ${n.hora}</div>
+                        </div>
+                    </div>`;
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        function updateUserUI() {
+            const icon = document.getElementById('userIconBtn');
+            if(currentUser) {
+                icon.className = "fas fa-user-check"; icon.style.color = "var(--primary)";
+                document.getElementById('profileNameDisplay').innerText = currentUser.nombre;
+                document.getElementById('profilePhoneDisplay').innerText = currentUser.telefono;
+            } else {
+                icon.className = "fas fa-user"; icon.style.color = "#fff";
+                document.getElementById('profileNameDisplay').innerText = "Invitado";
+                document.getElementById('profilePhoneDisplay').innerText = "Inicia sesión";
+            }
+        }
+        function abrirPerfilUsuario() {
+            if(currentUser) abrirModal('modalUserProfile');
+            else abrirModal('modalAuth');
+        }
+
+        function switchAuthTab(tab) {
+            document.getElementById('formLogin').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('formRegister').style.display = tab === 'register' ? 'block' : 'none';
+            document.getElementById('tabLogin').style.background = tab === 'login' ? 'var(--primary)' : 'transparent';
+            document.getElementById('tabLogin').style.color = tab === 'login' ? '#000' : '#fff';
+            document.getElementById('tabRegister').style.background = tab === 'register' ? 'var(--primary)' : 'transparent';
+            document.getElementById('tabRegister').style.color = tab === 'register' ? '#000' : '#fff';
+        }
+
+        async function cargarBarberos() {
+            const list = document.getElementById('barberList');
+            const [resB, resR] = await Promise.all([
+                _sb.from('barberos').select('*').eq('node_restricted', false),
+                _sb.from('resenas').select('barbero_id, calificacion')
+            ]);
+            const data = resB.data;
+            const reviews = resR.data || [];
+            if(!data) return;
+            const { data: stories } = await _sb.storage.from('stories').list('', { limit: 100, search: 'story_' });
+            const mapStories = new Set(stories ? stories.map(f => f.name) : []);
+            barberosCache = data.filter(b => b.disponible === true).map(b => {
+                const misReviews = reviews.filter(r => String(r.barbero_id) === String(b.id));
+                const cantidad = misReviews.length;
+                let promedio = 0;
+                if(cantidad > 0) {
+                    const suma = misReviews.reduce((acc, curr) => acc + curr.calificacion, 0);
+                    promedio = (suma / cantidad);
+                } else {
+                    promedio = b.ranking ? parseFloat(b.ranking) : 0;
+                }
+                return {
+                    ...b,
+                    rating: parseFloat(promedio).toFixed(1),
+                    reviews: cantidad,
+                    tiene_historia: mapStories.has(`story_${b.id}.jpg`)
+                };
+            });
+            barberosCache.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+            renderBarberos(barberosCache);
+            actualizarContadores();
+        }
+
+        function renderBarberos(lista, append = false) {
+            const container = document.getElementById('barberList');
+            if (!append) {
+                container.innerHTML = '';
+                barberosFiltrados = lista;
+                visibleCount = 10;
+                mostrarEsqueletos();
+            }
+
+            setTimeout(() => {
+                if (!append) container.innerHTML = '';
+                const aMostrar = barberosFiltrados.slice(container.querySelectorAll('.barber-card').length, container.querySelectorAll('.barber-card').length + 10);
+                
+                aMostrar.forEach((b, index) => {
+                    let distHtml = '';
+                    if(miUbicacion.lat && b.lat) {
+                        const d = calcularDistancia(miUbicacion.lat, miUbicacion.lng, b.lat, b.lng);
+                        distHtml = `<span class="distance-tag">${d.toFixed(1)}km</span>`;
+                    }
+                    const avatarUrl = b.foto_url ? `${b.foto_url}?t=${Date.now()}` : '';
+                    const clickAction = b.tiene_historia ? `onclick="event.stopPropagation(); verHistoria('${b.id}', '${b.nombre}')"` : `onclick="event.stopPropagation(); abrirVisor('${avatarUrl}', '${b.nombre}')"`;
+                    const avatar = avatarUrl ? `<img src="${avatarUrl}" class="avatar ${b.tiene_historia ? 'has-story' : ''}" ${clickAction}>` : `<div class="avatar-placeholder ${b.tiene_historia ? 'has-story' : ''}" ${clickAction}>${b.nombre[0]}</div>`;
+                    const estrellas = Math.round(parseFloat(b.rating || 0));
+                    let starsHtml = '';
+                    for(let i=0; i<5; i++) starsHtml += `<i class="fas fa-star" style="color:${i < estrellas ? 'var(--gold)' : '#333'}; margin-right:2px;"></i>`;
+
+                    const card = document.createElement('div');
+                    card.className = 'barber-card barber-reveal';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            ${avatar}
+                            <div class="card-info">
+                                <div class="barber-name">${b.nombre} <i class="fas fa-check-circle" style="color:var(--primary); font-size:12px;"></i></div>
+                                <div style="font-size:11px; color:#aaa;"><i class="fas fa-map-marker-alt"></i> ${b.provincia || 'Cuba'}${distHtml}</div>
+                                <div style="font-size:11px; margin-top:3px;">${starsHtml} <span style="color:#fff; font-weight:bold; margin-left:5px;">${b.rating}</span></div>
+                                <div class="btn-reviews" onclick="event.stopPropagation(); abrirResenas('${b.id}', '${b.nombre}')">
+                                    <i class="fas fa-comment-alt"></i> ${b.reviews > 0 ? b.reviews + ' opiniones' : 'Sé el primero en comentar'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button class="header-btn" onclick="window.open('tel:${b.telefono}', '_self')"><i class="fas fa-phone"></i></button>
+                            <button class="header-btn" onclick="window.open('https://wa.me/53${b.telefono}', '_blank')"><i class="fab fa-whatsapp"></i></button>
+                            <button class="header-btn" onclick="verPortafolio('${b.telefono}')"><i class="fas fa-camera"></i></button>
+                            <button class="btn-book" onclick="abrirReserva('${b.id}', '${b.nombre}')">RESERVAR</button>
+                        </div>`;
+                    container.appendChild(card);
+                    setTimeout(() => card.classList.add('visible'), index * 50);
+                });
+                isLoadingScroll = false;
+            }, append ? 0 : 600);
+        }
+
+        function mostrarEsqueletos() {
+            const container = document.getElementById('barberList');
+            for(let i=0; i<3; i++) {
+                const sk = document.createElement('div');
+                sk.className = 'barber-card skeleton';
+                sk.style.height = '140px';
+                sk.style.marginBottom = '16px';
+                container.appendChild(sk);
+            }
+        }
+
+        function initInfiniteScroll() {
+            const sentinel = document.getElementById('scrollSentinel');
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && !isLoadingScroll) {
+                    if (document.getElementById('barberList').querySelectorAll('.barber-card').length < barberosFiltrados.length) {
+                        isLoadingScroll = true;
+                        renderBarberos(barberosFiltrados, true);
+                    }
+                }
+            }, { threshold: 0.1 });
+            observer.observe(sentinel);
+        }
+
+        // --- UBICACIÓN & MAPA ---
+        function detectarUbicacion() {
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    miUbicacion = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    if (barberosCache.length > 0) {
+                        barberosCache.forEach(b => {
+                            if(b.lat && b.lng) b.distancia = calcularDistancia(miUbicacion.lat, miUbicacion.lng, b.lat, b.lng);
+                        });
+                        barberosCache.sort((a, b) => (a.distancia || 9999) - (b.distancia || 9999));
+                        renderBarberos(barberosCache);
+                        actualizarContadores();
+                    }
+                },
+                err => { console.log("GPS no disponible"); },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function calcularDistancia(lat1, lng1, lat2, lng2) {
+            const R = 6371; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2) * Math.sin(dLng/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        function actualizarContadores() {
+            // Todos los disponibles
+            const total = barberosCache.length;
+            document.getElementById('countTodos').innerText = total;
+
+            // Los que están cerca (menos de 15km)
+            const cercanos = barberosCache.filter(b => b.distancia && b.distancia < 15).length;
+            document.getElementById('countCerca').innerText = cercanos;
+        }
+
+        function actualizarEstiloFiltro(activo) {
+            const botones = {
+                'todos': document.getElementById('btnTodos'),
+                'cerca': document.getElementById('btnCerca'),
+                'mapa': document.getElementById('btnMapa')
+            };
+            Object.keys(botones).forEach(key => {
+                if (botones[key]) {
+                    const esActivo = key === activo;
+                    botones[key].style.background = esActivo ? 'var(--primary)' : 'var(--bg-elevated)';
+                    botones[key].style.color = esActivo ? '#000' : '#fff';
+                }
+            });
+        }
+
+        function filtrarPor(tipo) {
+            actualizarEstiloFiltro(tipo);
+            if(tipo === 'todos') renderBarberos(barberosCache);
+            if(tipo === 'cerca') {
+                if(!miUbicacion.lat) return Swal.fire({toast:true, title:'Activa GPS primero', icon:'info'});
+                const cercanos = barberosCache.filter(b => b.distancia < 15).sort((a,b) => a.distancia - b.distancia);
+                renderBarberos(cercanos);
+            }
+        }
+
+        function abrirMapa() {
+            const listaMapa = document.getElementById('mapBarberList');
+            abrirModal('modalMap');
+            const conUbicacion = barberosCache.filter(b => b.lat && b.lng);
+            listaMapa.innerHTML = '';
+            const cercanos = [...conUbicacion].sort((a,b) => (a.distancia||999) - (b.distancia||999)).slice(0, 5);
+            if(cercanos.length === 0) listaMapa.innerHTML = '<div style="text-align:center; color:#666; padding:10px; font-size:12px;">No hay barberos con ubicación disponible.</div>';
+            cercanos.forEach(b => {
+                const distText = b.distancia ? `${b.distancia.toFixed(1)} km` : '';
+                listaMapa.innerHTML += `
+                <div onclick="cerrarModal('modalMap'); setTimeout(() => abrirReserva('${b.id}', '${b.nombre}'), 300)" style="background:var(--bg-elevated); padding:12px; border-radius:12px; border:1px solid var(--border); display:flex; align-items:center; gap:10px; cursor:pointer;">
+                    <div style="width:40px; height:40px; background:var(--primary-dim); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-weight:bold;">${b.nombre[0]}</div>
+                    <div style="flex:1;">
+                        <div style="color:#fff; font-weight:bold;">${b.nombre}</div>
+                        <div style="font-size:11px; color:var(--gray);"><i class="fas fa-map-marker-alt"></i> ${b.provincia || 'Ubicación'}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="color:var(--accent); font-size:12px; font-weight:bold;">${distText}</div>
+                        <div style="color:var(--gold); font-size:10px;">★ ${b.rating}</div>
+                    </div>
+                </div>`;
+            });
+            setTimeout(() => {
+                if(!mapaInstance) {
+                    mapaInstance = L.map('mapContainer');
+                    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{ subdomains:['mt0','mt1','mt2','mt3'] }).addTo(mapaInstance);
+                    markersLayer = L.layerGroup().addTo(mapaInstance);
+                }
+                mapaInstance.invalidateSize();
+                markersLayer.clearLayers();
+                const bounds = L.latLngBounds();
+                if(miUbicacion.lat) {
+                    const me = L.marker([miUbicacion.lat, miUbicacion.lng]).addTo(markersLayer).bindPopup("<b>Tú</b>");
+                    bounds.extend(me.getLatLng());
+                }
+                conUbicacion.forEach(b => {
+                    const m = L.marker([b.lat, b.lng]).addTo(markersLayer)
+                     .bindPopup(`<b>${b.nombre}</b><br>${b.distancia ? b.distancia.toFixed(1)+'km' : ''}<br><button onclick="cerrarModal('modalMap'); setTimeout(() => abrirReserva('${b.id}','${b.nombre}'), 300)" style="margin-top:5px;">Reservar</button>`);
+                    bounds.extend(m.getLatLng());
+                });
+                if(bounds.isValid()) {
+                    mapaInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+                } else {
+                    mapaInstance.setView([23.1136, -82.3666], 13);
+                }
+            }, 300);
+        }
+
+        // --- RESERVAS ---
+        let barberoSel = null;
+        async function abrirReserva(id, nombre) {
+            if(!currentUser) return Swal.fire({title:'Inicia sesión', text:'Debes entrar a tu cuenta para reservar', icon:'info'}).then(() => abrirPerfilUsuario());
+
+            barberoSel = id;
+            document.getElementById('targetBarberName').innerText = nombre;
+            abrirModal('modalBooking');
+            
+            // Cargar servicios (FIX: Añadimos data-precio y sanitizamos nulos)
+            const select = document.getElementById('clientService');
+            select.innerHTML = '<option>Cargando...</option>';
+            const { data } = await _sb.from('servicios').select('*').eq('barbero_id', id).order('precio');
+            
+            if (data && data.length) {
+                select.innerHTML = data.map(s => {
+                    const precioSeguro = (s.precio !== null && s.precio !== undefined) ? s.precio : 0;
+                    return `<option value="${s.nombre}" data-precio="${precioSeguro}">${s.nombre} ($${precioSeguro})</option>`;
+                }).join('');
+            } else {
+                select.innerHTML = '<option value="Corte General" data-precio="0">Corte General</option>';
+            }
+
+            // Horarios
+            const dateIn = document.getElementById('clientDate');
+            const hoy = new Date().toISOString().split('T')[0];
+            dateIn.value = hoy;
+            dateIn.min = hoy; // FIX: Bloquea días anteriores
+            dateIn.onchange = () => cargarHorarios(id, dateIn.value);
+            cargarHorarios(id, dateIn.value);
+        }
+
+        async function cargarHorarios(id, fecha) {
+            const grid = document.getElementById('slotsContainer');
+            grid.innerHTML = 'Cargando...';
+            
+            const { data: b } = await _sb.from('barberos').select('horario').eq('id', id).single();
+            const { data: turnos } = await _sb.from('turnos').select('hora').eq('barbero_id', id).eq('fecha', fecha).eq('estado', 'aceptado');
+            
+            const ocupados = turnos.map(t => t.hora);
+            grid.innerHTML = '';
+            
+            // Generar horas (9 AM a 7 PM)
+            for(let h=9; h<19; h++) {
+                ['00', '30'].forEach(m => {
+                    const time = `${h.toString().padStart(2,'0')}:${m}`; // 24h para DB
+                    
+                    // Conversión visual a 12h
+                    const ampm = h >= 12 ? 'PM' : 'AM';
+                    const h12 = h % 12 || 12;
+                    const timeDisplay = `${h12}:${m} ${ampm}`;
+
+                    const div = document.createElement('div');
+                    div.className = `time-slot ${ocupados.includes(time) ? 'taken' : ''}`;
+                    div.innerText = timeDisplay; // Muestra "2:00 PM"
+                    
+                    if(!ocupados.includes(time)) {
+                        div.onclick = () => {
+                            document.querySelectorAll('.time-slot').forEach(e=>e.classList.remove('selected'));
+                            div.classList.add('selected');
+                            document.getElementById('clientTime').value = time; // Guarda "14:00"
+                        };
+                    }
+                    grid.appendChild(div);
+                });
+            }
+        }
+
+        async function enviarSolicitud() {
+            const servicio = document.getElementById('clientService').value;
+            const fecha = document.getElementById('clientDate').value;
+            const hora = document.getElementById('clientTime').value;
+            
+            // FIX: Obtener precio seguro (Número)
+            const select = document.getElementById('clientService');
+            let rawPrecio = select.options[select.selectedIndex]?.getAttribute('data-precio');
+            if(!rawPrecio || rawPrecio === "null") rawPrecio = "0";
+            const precioFinal = parseFloat(rawPrecio);
+
+            if(!hora) return Swal.fire({toast:true, title:'Elige una hora', icon:'warning'});
+            
+            // Enviamos el precio explícitamente para que la APK no reciba null
+            const { error } = await _sb.from('turnos').insert([{
+                barbero_id: barberoSel,
+                cliente: currentUser.nombre,
+                telefono: currentUser.telefono,
+                fecha, hora, servicio, 
+                precio: precioFinal, 
+                estado: 'pendiente',
+                device_id: deviceID
+            }]);
+
+            if(!error) {
+                cerrarModal('modalBooking');
+                Swal.fire({icon:'success', title:'Solicitud enviada', text:'Espera la confirmación del barbero.'});
+            } else {
+                Swal.fire({icon:'error', title:'Error', text: error.message});
+            }
+        }
+
+        async function verMisTurnos() {
+            if(!currentUser) return;
+            abrirModal('modalHistory');
+            const list = document.getElementById('historyList');
+            list.innerHTML = 'Cargando...';
+            
+            const { data } = await _sb.from('turnos').select('*').eq('telefono', currentUser.telefono).order('id', {ascending:false});
+            list.innerHTML = '';
+            data.forEach(t => {
+                const color = t.estado === 'aceptado' ? 'var(--green)' : (t.estado === 'rechazado' ? 'var(--red)' : 'var(--gold)');
+                list.innerHTML += `
+                <div style="background:var(--bg-elevated); padding:15px; border-radius:12px; margin-bottom:10px; border-left:4px solid ${color}">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; color:#fff;">
+                        <span>${t.servicio}</span>
+                        <span style="color:${color}">${t.estado.toUpperCase()}</span>
+                    </div>
+                    <div style="color:#aaa; font-size:13px; margin-top:5px;">
+                        ${t.fecha} a las ${t.hora}
+                    </div>
+                </div>`;
+            });
+        }
+
+        function contactarSoporte() {
+            window.open(`https://wa.me/5351881471?text=Ayuda con mi cuenta ID: ${deviceID}`, '_blank');
+        }
+
+        let storyTimer;
+        let isPaused = false;
+        let storyTargetId = null;
+
+        function verHistoria(id, nombre) {
+            storyTargetId = id;
+            const url = `${SB_URL}/storage/v1/object/public/stories/story_${id}.jpg?t=${Date.now()}`;
+            abrirVisor(url, nombre, true);
+        }
+        async function abrirVisor(url, nombre, esHistoria = false) {
+            if(!url || url.includes('null')) return;
+            const v = document.getElementById('storyViewer');
+            const img = document.getElementById('storyImg');
+            const actions = document.getElementById('storyActions');
+            img.src = url;
+            document.getElementById('storyUser').innerText = nombre;
+            v.classList.add('active');
+            modalStack.push('storyViewer');
+            history.pushState(null, null, null);
+            actions.style.display = esHistoria ? 'flex' : 'none';
+            
+            if(esHistoria) {
+                registrarVista(); // Notificar a la APK que alguien está viendo
+                cargarInteraccionesHistoria();
+            }
+
+            img.oncontextmenu = (e) => { e.preventDefault(); return false; };
+            const pausar = () => { isPaused = true; };
+            const reanudar = () => { isPaused = false; };
+            img.ontouchstart = pausar; img.ontouchend = reanudar;
+            img.onmousedown = pausar; img.onmouseup = reanudar;
+
+            const bar = document.getElementById('storyProgress');
+            bar.style.width = '0%';
+            if(storyTimer) clearInterval(storyTimer);
+            isPaused = false;
+            
+            if(esHistoria) {
+                document.querySelector('.story-bar').style.display = 'flex';
+                let w = 0;
+                storyTimer = setInterval(() => {
+                    if (!isPaused) {
+                        w += 1; bar.style.width = w + '%';
+                        if(w >= 100) cerrarHistoria();
+                    }
+                }, 50);
+            } else {
+                document.querySelector('.story-bar').style.display = 'none';
+            }
+        }
+
+        async function registrarVista() {
+            if(!currentUser) return;
+            try {
+                // Registro en interacciones_stories para que el barbero vea "Visto por..." en su APK
+                await _sb.from('interacciones_stories').insert([{
+                    barber_id: storyTargetId, // Nota: Se usa barber_id según el esquema de la APK
+                    cliente_id: currentUser.id,
+                    cliente_nombre: currentUser.nombre,
+                    tipo: 'vista'
+                }]);
+            } catch(e) { console.log("Vista no registrada:", e); }
+        }
+
+        async function cargarInteraccionesHistoria() {
+            try {
+                const { count } = await _sb.from('historias_likes').select('*', { count: 'exact', head: true }).eq('barbero_id', storyTargetId);
+                document.getElementById('likeCount').innerText = count || 0;
+
+                if(currentUser) {
+                    const { data } = await _sb.from('historias_likes').select('id').eq('barbero_id', storyTargetId).eq('cliente_id', currentUser.id).maybeSingle();
+                    if(data) document.getElementById('btnLikeStory').classList.add('liked');
+                    else document.getElementById('btnLikeStory').classList.remove('liked');
+                }
+            } catch(e) { console.error("Error interacciones:", e); }
+        }
+
+        async function darLikeHistoria() {
+            if(!currentUser) return abrirPerfilUsuario();
+            const btn = document.getElementById('btnLikeStory');
+            if(btn.classList.contains('liked')) return; 
+
+            try {
+                btn.classList.add('liked');
+                // Insertamos en historias_likes y también en interacciones para notificar vista/actividad
+                await Promise.all([
+                    _sb.from('historias_likes').insert([{ barbero_id: storyTargetId, cliente_id: currentUser.id, cliente_nombre: currentUser.nombre }]),
+                    _sb.from('interacciones_stories').insert([{ barber_id: storyTargetId, cliente_id: currentUser.id, cliente_nombre: currentUser.nombre, tipo: 'like' }])
+                ]);
+                document.getElementById('likeCount').innerText = parseInt(document.getElementById('likeCount').innerText) + 1;
+            } catch(e) { console.error("Error Like:", e); }
+        }
+
+        async function comentarHistoria() {
+            if(!currentUser) return abrirPerfilUsuario();
+            isPaused = true; 
+            const { value: text } = await Swal.fire({
+                title: 'RESPONDER HISTORIA',
+                input: 'text',
+                inputPlaceholder: 'Escribe un mensaje...',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--primary)',
+                background: '#12121a', color: '#fff', target: 'body'
+            });
+
+            if (text) {
+                // 1. Guardar en la tabla de comentarios y registrar en actividad para que la APK avise
+                const [resCom, resAct] = await Promise.all([
+                    _sb.from('historias_comentarios').insert([{
+                        barbero_id: storyTargetId,
+                        cliente_nombre: currentUser.nombre,
+                        comentario: text,
+                        fecha: new Date().toISOString(),
+                        leido: false 
+                    }]),
+                    _sb.from('interacciones_stories').insert([{
+                        barber_id: storyTargetId, // Usamos barber_id para la APK
+                        cliente_id: currentUser.id,
+                        cliente_nombre: currentUser.nombre,
+                        tipo: 'comentario',
+                        contenido: text
+                    }])
+                ]);
+
+                if(!resCom.error) {
+                    // CARTEL DE CONFIRMACIÓN
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡ENVIADO!',
+                        text: 'Tu comentario ha llegado al barbero.',
+                        background: '#12121a',
+                        color: '#fff',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    console.error("Error al enviar comentario:", resCom.error);
+                }
+            }
+            isPaused = false;
+        }
+
+        function cerrarHistoria() {
+            window.history.back();
+        }
+
+        let touchStartX = 0; let touchStartY = 0;
+        const visor = document.getElementById('storyViewer');
+        visor.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, {passive: true});
+        visor.addEventListener('touchend', e => {
+            const diffX = Math.abs(e.changedTouches[0].screenX - touchStartX);
+            const diffY = Math.abs(e.changedTouches[0].screenY - touchStartY);
+            if(diffX > 50 || diffY > 50) cerrarHistoria();
+        }, {passive: true});
+
+        async function verPortafolio(telefono) {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '<div style="color:#fff; grid-column:span 2; text-align:center;">Cargando fotos...</div>';
+            abrirModal('modalCatalog');
+
+            try {
+                const { data, error } = await _cat.storage.from('catalogo').list(telefono, { limit: 10, sortBy: { column: 'created_at', order: 'desc' } });
+                
+                if(error || !data || data.length === 0) {
+                    grid.innerHTML = '<div style="color:#aaa; grid-column:span 2; text-align:center;">Este barbero aún no sube fotos.</div>';
+                    return;
+                }
+
+                grid.innerHTML = '';
+                data.forEach(file => {
+                    const { data: publicUrl } = _cat.storage.from('catalogo').getPublicUrl(`${telefono}/${file.name}`);
+                    const img = document.createElement('img');
+                    img.src = publicUrl.publicUrl;
+                    img.style.cssText = "width:100%; height:150px; object-fit:cover; border-radius:12px; border:1px solid #333;";
+                    img.onclick = () => abrirVisor(publicUrl.publicUrl, "Portafolio");
+                    grid.appendChild(img);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    Swal.fire({ icon: 'info', title: 'Pantalla Completa', text: 'Para una mejor experiencia, dale a los 3 puntos del navegador y selecciona "Instalar aplicación" o "Añadir a pantalla de inicio".', background: '#12121a', color: '#fff' });
+                });
+            } else {
+                if (document.exitFullscreen) { document.exitFullscreen(); }
+            }
+        }
+
+                function abrirModal(id) { 
+            const m = document.getElementById(id);
+            if (m) {
+                m.classList.add('open');
+                modalStack.push(id);
+                history.pushState(null, null, null);
+            }
+        }
+        function cerrarModal(id) { 
+            window.history.back();
+        }
+        function filtrarBarberos() {
+
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+            const res = barberosCache.filter(b => {
+                const nombreOk = b.nombre.toLowerCase().includes(q);
+                const telOk = b.telefono && b.telefono.toString().includes(q);
+                return nombreOk || telOk;
+            });
+            renderBarberos(res);
+        }
+    </script>
+</body>
+</html>
