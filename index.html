@@ -7,6 +7,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Barber Connect Web</title>
+        <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Barber%20Connect%22,%22short_name%22:%22Barber%22,%22start_url%22:%22index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22#0a0a0f%22,%22theme_color%22:%22#00D4AA%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/100/100344.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -1074,8 +1076,6 @@
                         barberosCache.forEach(b => {
                             if(b.lat && b.lng) b.distancia = calcularDistancia(miUbicacion.lat, miUbicacion.lng, b.lat, b.lng);
                         });
-                        barberosCache.sort((a, b) => (a.distancia || 9999) - (b.distancia || 9999));
-                        renderBarberos(barberosCache);
                         actualizarContadores();
                     }
                 },
@@ -1119,7 +1119,10 @@
 
         function filtrarPor(tipo) {
             actualizarEstiloFiltro(tipo);
-            if(tipo === 'todos') renderBarberos(barberosCache);
+            if(tipo === 'todos') {
+                barberosCache.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+                renderBarberos(barberosCache);
+            }
             if(tipo === 'cerca') {
                 if(!miUbicacion.lat) return Swal.fire({toast:true, title:'Activa GPS primero', icon:'info'});
                 const cercanos = barberosCache.filter(b => b.distancia < 15).sort((a,b) => a.distancia - b.distancia);
@@ -1519,3 +1522,4 @@
     </script>
 </body>
 </html>
+
